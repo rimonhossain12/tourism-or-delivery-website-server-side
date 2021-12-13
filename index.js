@@ -3,6 +3,8 @@ const cors = require('cors');
 const { MongoClient } = require('mongodb');
 const { response } = require('express');
 require('dotenv').config();
+const ObjectId = require('mongodb').ObjectId;
+const { signal } = require('nodemon/lib/config/defaults');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -19,14 +21,24 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
+        // console.log('database is connecting');
         const database = client.db('travelSite');
-        const servicesCollection = database.collection('services');
-
+        const servicesCollection = database.collection('services')
+        ;
         // GET API
-        app.get('/services',async(req,res) =>{
+        app.get('/services', async (req, res) => {
             const cursor = servicesCollection.find({});
             const services = await cursor.toArray();
             res.send(services);
+        })
+        // get single service
+        app.get('/single/:id',async(req,res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            console.log(query);
+            const singleService = await servicesCollection.findOne(query);
+            console.log('found data is',singleService);
+            res.json(singleService);
         })
 
         // POST API
@@ -37,7 +49,6 @@ async function run() {
             // console.log(result);
             res.json(result);
         })
-
     } finally {
         // await client.close();
     }
@@ -50,5 +61,5 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log('Running travel server on port',port);
+    console.log('Running travel server on port', port);
 })
