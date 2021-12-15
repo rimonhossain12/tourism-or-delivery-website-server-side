@@ -34,6 +34,12 @@ async function run() {
             const services = await cursor.toArray();
             res.send(services);
         })
+        // load all orders data
+        app.get('/userOrder', async (req, res) => {
+            const cursor = ordersCollection.find({});
+            const orders = await cursor.toArray();
+            res.send(orders);
+        })
 
         // get single service
         app.get('/single/:id', async (req, res) => {
@@ -72,7 +78,7 @@ async function run() {
             console.log('data is deleted',result);
             res.json(result);
             
-        })
+        });
 
     } finally {
         // await client.close();
