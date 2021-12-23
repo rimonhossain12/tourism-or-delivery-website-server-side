@@ -26,6 +26,7 @@ async function run() {
         const database = client.db('travelSite');
         const servicesCollection = database.collection('services');
         const ordersCollection = database.collection('userOrder');
+        const reviewCustomer = database.collection('userReview');
 
 
         // GET API
@@ -34,6 +35,15 @@ async function run() {
             const services = await cursor.toArray();
             res.send(services);
         })
+        // get all user review api
+        
+        app.get('/userReview',async(req,res) => {
+           const cursor = reviewCustomer.find({});
+           const review = await cursor.toArray();
+           res.json(review);
+           console.log(review);
+        })
+
         // load all orders data
         app.get('/userOrder', async (req, res) => {
             const cursor = ordersCollection.find({});
@@ -58,6 +68,7 @@ async function run() {
 
         // POST API
         app.post('/services', async (req, res) => {
+            console.log('add service api is hitting',req.body);
             const service = req.body;
             const result = await servicesCollection.insertOne(service);
             res.json(result);
