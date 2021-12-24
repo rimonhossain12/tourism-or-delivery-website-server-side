@@ -6,6 +6,7 @@ require('dotenv').config();
 const ObjectId = require('mongodb').ObjectId;
 const { signal } = require('nodemon/lib/config/defaults');
 const { reset } = require('nodemon');
+const { isMac } = require('nodemon/lib/utils');
 
 
 const app = express();
@@ -27,7 +28,7 @@ async function run() {
         const servicesCollection = database.collection('services');
         const ordersCollection = database.collection('userOrder');
         const reviewCustomer = database.collection('userReview');
-
+        const userCollection = database.collection('users');
 
         // GET API
         app.get('/services', async (req, res) => {
@@ -36,11 +37,11 @@ async function run() {
             res.send(services);
         })
         // get all user review api
-        
-        app.get('/userReview',async(req,res) => {
-           const cursor = reviewCustomer.find({});
-           const review = await cursor.toArray();
-           res.json(review);
+
+        app.get('/userReview', async (req, res) => {
+            const cursor = reviewCustomer.find({});
+            const review = await cursor.toArray();
+            res.json(review);
         })
 
         // load all orders data
@@ -63,11 +64,12 @@ async function run() {
             const cursor = ordersCollection.find({ email });
             const products = await cursor.toArray();
             res.send(products);
-        })
-
+        });
+        // find admin 
+        
         // POST API
         app.post('/services', async (req, res) => {
-            console.log('add service api is hitting',req.body);
+            console.log('add service api is hitting', req.body);
             const service = req.body;
             const result = await servicesCollection.insertOne(service);
             res.json(result);
@@ -80,14 +82,26 @@ async function run() {
             res.json(result);
         });
 
+        app.put('/users', async (req, res) => {
+            const user = req.body;
+            const filter = { email: user.email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    name: user.displayName,
+                    email: user.email
+                }
+            }
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+        });
         // delete user order
-        app.delete('/cancel/:id',async(req,res) => {
+        app.delete('/cancel/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const result = await ordersCollection.deleteOne(query);
-            console.log('data is deleted',result);
+            console.log('data is deleted', result);
             res.json(result);
-            
+
         });
 
     } finally {
