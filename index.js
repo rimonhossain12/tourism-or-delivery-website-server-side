@@ -41,7 +41,6 @@ async function run() {
            const cursor = reviewCustomer.find({});
            const review = await cursor.toArray();
            res.json(review);
-           console.log(review);
         })
 
         // load all orders data
