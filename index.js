@@ -8,6 +8,7 @@ const { signal } = require('nodemon/lib/config/defaults');
 const { reset } = require('nodemon');
 const { isMac } = require('nodemon/lib/utils');
 
+//somemthing are changes
 
 const app = express();
 const port = process.env.PORT || 5000;
